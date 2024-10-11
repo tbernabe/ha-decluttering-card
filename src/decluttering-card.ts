@@ -206,7 +206,7 @@ abstract class DeclutteringElement extends LitElement {
     if (!this._hass || !this._thing) return html``;
 
     return html`
-      <div id="root">${this._thing}</div>
+      ${this._thing}
     `;
   }
 

@@ -1,4 +1,5 @@
 # Decluttering Card
+
 📝 Reuse multiple times the same card configuration with variables to declutter your config.
 
 [![GitHub Release][releases-shield]][releases]
@@ -25,7 +26,7 @@ We all use multiple times the same block of configuration across our lovelace co
 
 There are two ways to define your templates. You can use both methods together.
 
-#### Option 1. Create a template as a card with the visual editor or with YAML.
+#### Option 1. Create a template as a card with the visual editor or with YAML
 
 Add a *Custom: Decluttering template* card in any view of your dashboard to define your template,
 set variables with their default values, and preview the results with those defaults with the
@@ -44,7 +45,7 @@ card:
   entity_id: sun.sun
 ```
 
-#### Option 2. Create a template at the root of your lovelace configuration.
+#### Option 2. Create a template at the root of your lovelace configuration
 
 Open your dashboard's YAML configuration file or click on the *Raw configuration editor* menu item
 in the dashboard.
@@ -274,6 +275,47 @@ cards:
 | type | string | **Required** | `custom:decluttering-card`
 | template | object | **Required** | Name of your template
 | variables | list | **Optional** | List of variables and their values to replace in the template content
+| style | string | **Optional** | CSS styles to inject into the card. Supports variable replacement.
+
+### Styling
+
+The `decluttering-card` supports injecting custom CSS styles directly into the card. This is useful for customizing the appearance of templates and instances without needing external tools like `card-mod`.
+
+#### `decluttering-container` class
+
+The host element of the `decluttering-card` is automatically assigned the `decluttering-container` class. You can use this class to target the card itself in your styles.
+
+**Example:**
+
+```yaml
+- type: custom:decluttering-card
+  template: my_styled_card
+  variables:
+    - color: red
+  style: |
+    :host(.decluttering-container) {
+      border: 2px solid [[color]];
+    }
+```
+
+#### Template styles
+
+You can also define styles within your templates. These styles will be injected whenever the template is used.
+
+**Example:**
+
+```yaml
+decluttering_templates:
+  my_styled_card:
+    card:
+      type: entity
+      entity: sun.sun
+    style: |
+      ha-card {
+        background-color: var(--primary-background-color);
+        border-radius: 15px;
+      }
+```
 
 ## Installation
 
@@ -309,6 +351,7 @@ resources:
 See this guide: [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
 ## Developers
+
 Fork and then clone the repo to your local machine. From the cloned directory run
 
 `npm install && npm run build`

@@ -1,4 +1,5 @@
-import { LitElement, html, customElement, property, state, TemplateResult, css, CSSResult } from 'lit-element';
+import { LitElement, html, TemplateResult, css, CSSResult } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import {
   HomeAssistant,
   createThing,
@@ -18,14 +19,13 @@ import {
 } from './types';
 import deepReplace from './deep-replace';
 import { getLovelaceConfig } from './utils';
-import { ResizeObserver } from 'resize-observer';
-import * as pjson from '../package.json';
+import { VERSION } from './version';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const HELPERS = (window as any).loadCardHelpers ? (window as any).loadCardHelpers() : undefined;
 
 console.info(
-  `%c DECLUTTERING-CARD \n%c   Version ${pjson.version}   `,
+  `%c DECLUTTERING-CARD \n%c   Version ${VERSION}   `,
   'color: orange; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray',
 );
@@ -137,6 +137,7 @@ abstract class DeclutteringElement extends LitElement {
   private _thingType?: LovelaceThingType;
   private _ro?: ResizeObserver;
   private _savedStyles?: Map<string, [string, string]>;
+  @state() private _style?: string;
 
   set hass(hass: HomeAssistant) {
     if (!hass) return;
@@ -148,6 +149,9 @@ abstract class DeclutteringElement extends LitElement {
     return css`
       :host(.child-card-hidden) {
         display: none;
+      }
+      :host(.decluttering-container) {
+        display: block;
       }
     `;
   }
@@ -166,12 +170,26 @@ abstract class DeclutteringElement extends LitElement {
     }
   }
 
-  protected _setTemplateConfig(templateConfig: TemplateConfig, variables: VariablesConfig[] | undefined): void {
+  protected _setTemplateConfig(
+    templateConfig: TemplateConfig,
+    variables: VariablesConfig[] | undefined,
+    cardStyle?: string,
+  ): void {
     const thingType = getThingType(templateConfig);
     if (!thingType) {
       throw new Error('You must define one card, element, or row in the template');
     }
-    const thingConfig = deepReplace(variables, templateConfig);
+    const thingContent = templateConfig.card ?? templateConfig.element ?? templateConfig.row;
+    const thingConfig = deepReplace(variables, templateConfig, thingContent);
+
+    let styles = '';
+    if (templateConfig.style) {
+      styles += deepReplace(variables, templateConfig, templateConfig.style);
+    }
+    if (cardStyle) {
+      styles += deepReplace(variables, templateConfig, cardStyle);
+    }
+    this._style = styles;
 
     this._thingConfig = thingConfig;
     this._thingType = thingType;
@@ -205,7 +223,16 @@ abstract class DeclutteringElement extends LitElement {
   protected render(): TemplateResult | void {
     if (!this._hass || !this._thing) return html``;
 
+    this.classList.add('decluttering-container');
+
     return html`
+      ${this._style
+        ? html`
+            <style>
+              ${this._style}
+            </style>
+          `
+        : ''}
       ${this._thing}
     `;
   }
@@ -289,7 +316,7 @@ class DeclutteringCard extends DeclutteringElement {
         `The template "${config.template}" doesn't exist in decluttering_templates or in a custom:decluttering-template card`,
       );
     }
-    this._setTemplateConfig(templateConfig, config.variables);
+    this._setTemplateConfig(templateConfig, config.variables, config.style);
   }
 }
 
@@ -425,7 +452,7 @@ class DeclutteringTemplate extends DeclutteringElement {
       throw new Error('Missing template property');
     }
     this._template = config.template;
-    this._setTemplateConfig(config, undefined);
+    this._setTemplateConfig(config, undefined, config.style);
   }
 
   protected render(): TemplateResult | void {

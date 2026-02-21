@@ -1,7 +1,7 @@
-import { VariablesConfig, TemplateConfig, LovelaceThingConfig } from './types';
+import { VariablesConfig, TemplateConfig } from './types';
 
-export default (variables: VariablesConfig[] | undefined, templateConfig: TemplateConfig): LovelaceThingConfig => {
-  const content = templateConfig.card ?? templateConfig.element ?? templateConfig.row;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export default (variables: VariablesConfig[] | undefined, templateConfig: TemplateConfig, content: any): any => {
   if (!variables && !templateConfig.default) {
     return content;
   }
@@ -18,7 +18,7 @@ export default (variables: VariablesConfig[] | undefined, templateConfig: Templa
     const value = Object.values(variable)[0];
     if (typeof value === 'number' || typeof value === 'boolean') {
       const rxp2 = new RegExp(`"\\[\\[${key}\\]\\]"`, 'gm');
-      jsonConfig = jsonConfig.replace(rxp2, (value as unknown) as string);
+      jsonConfig = jsonConfig.replace(rxp2, (value as unknown) as any);
     }
     if (typeof value === 'object') {
       const rxp2 = new RegExp(`"\\[\\[${key}\\]\\]"`, 'gm');

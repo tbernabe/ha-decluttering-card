@@ -4,6 +4,7 @@ import { HomeAssistant, LovelaceCard, LovelaceCardConfig } from 'custom-card-hel
 export interface DeclutteringCardConfig extends LovelaceCardConfig {
   variables?: VariablesConfig[];
   template: string;
+  style?: string;
 }
 
 export interface DeclutteringTemplateConfig extends LovelaceCardConfig, TemplateConfig {
@@ -19,6 +20,7 @@ export interface TemplateConfig {
   card?: any;
   row?: any;
   element?: any;
+  style?: string;
 }
 
 export interface LovelaceElement extends HTMLElement {

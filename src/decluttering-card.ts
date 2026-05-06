@@ -137,6 +137,7 @@ abstract class DeclutteringElement extends LitElement {
   private _thingType?: LovelaceThingType;
   private _ro?: ResizeObserver;
   private _savedStyles?: Map<string, [string, string]>;
+  private _seen = new WeakSet<object>();
   @state() private _style?: string;
 
   set hass(hass: HomeAssistant) {
@@ -170,6 +171,56 @@ abstract class DeclutteringElement extends LitElement {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _resolveDeclutteringTree(config: any, ll: any, depth = 0): any {
+    if (depth > 10) {
+      console.warn('[decluttering-card] Stack overflow protection (Max depth = 10). Templates cycle maybe?', config);
+      return config;
+    }
+
+    if (Array.isArray(config)) {
+      if (this._seen.has(config)) return config;
+      this._seen.add(config);
+      return config.map(item => this._resolveDeclutteringTree(item, ll, depth + 1));
+    }
+
+    if (config && typeof config === 'object') {
+      if (this._seen.has(config)) {
+        return config;
+      }
+      this._seen.add(config);
+    }
+
+    if (!config || typeof config !== 'object') {
+      return config;
+    }
+
+    if (config.type === 'custom:decluttering-card') {
+      if (!ll) return config;
+
+      const templateConfig = getTemplateConfig(ll, config.template);
+      if (!templateConfig) return config;
+
+      const thingType = getThingType(templateConfig);
+      if (!thingType) return config;
+
+      const thingContent = templateConfig.card ?? templateConfig.element ?? templateConfig.row;
+
+      const thingConfig = deepReplace(config.variables, templateConfig, thingContent);
+
+      return this._resolveDeclutteringTree(thingConfig, ll, depth + 1);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any = {};
+
+    for (const key of Object.keys(config)) {
+      result[key] = this._resolveDeclutteringTree(config[key], ll, depth + 1);
+    }
+
+    return result;
+  }
+
   protected _setTemplateConfig(
     templateConfig: TemplateConfig,
     variables: VariablesConfig[] | undefined,
@@ -191,9 +242,14 @@ abstract class DeclutteringElement extends LitElement {
     }
     this._style = styles;
 
+    this._seen = new WeakSet<object>();
+    const ll = getLovelaceConfig();
+    const resolvedConfig = this._resolveDeclutteringTree(thingConfig, ll);
+
     this._thingConfig = thingConfig;
     this._thingType = thingType;
-    DeclutteringElement._createThing(thingConfig, thingType, (thing: LovelaceThing) => {
+
+    DeclutteringElement._createThing(resolvedConfig, thingType, (thing: LovelaceThing) => {
       if (this._thingConfig === thingConfig) {
         this._setThing(thing, thingType === 'element' ? thingConfig.style : undefined);
       }

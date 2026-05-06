@@ -171,6 +171,7 @@ abstract class DeclutteringElement extends LitElement {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _resolveDeclutteringTree(config: any, ll: any, depth = 0): any {
     if (depth > 10) {
       console.warn('[decluttering-card] Stack overflow protection (Max depth = 10). Templates cycle maybe?', config);
@@ -217,6 +218,7 @@ abstract class DeclutteringElement extends LitElement {
       return this._resolveDeclutteringTree(thingConfig, ll, depth + 1);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = {};
 
     for (const key of Object.keys(config)) {

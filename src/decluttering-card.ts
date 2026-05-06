@@ -177,14 +177,14 @@ abstract class DeclutteringElement extends LitElement {
       console.warn('[decluttering-card] Stack overflow protection (Max depth = 10). Templates cycle maybe?', config);
       return config;
     }
-    
+
     if (config && typeof config === 'object') {
       if (this._seen.has(config)) {
         return config;
       }
       this._seen.add(config);
     }
-    
+
     if (Array.isArray(config)) {
       if (this._seen.has(config)) return config;
       this._seen.add(config);
@@ -204,16 +204,9 @@ abstract class DeclutteringElement extends LitElement {
       const thingType = getThingType(templateConfig);
       if (!thingType) return config;
 
-      const thingContent =
-        templateConfig.card ??
-        templateConfig.element ??
-        templateConfig.row;
+      const thingContent = templateConfig.card ?? templateConfig.element ?? templateConfig.row;
 
-      const thingConfig = deepReplace(
-        config.variables,
-        templateConfig,
-        thingContent
-      );
+      const thingConfig = deepReplace(config.variables, templateConfig, thingContent);
 
       return this._resolveDeclutteringTree(thingConfig, ll, depth + 1);
     }
@@ -250,7 +243,7 @@ abstract class DeclutteringElement extends LitElement {
     this._style = styles;
 
     this._seen = new WeakSet<object>();
-    const ll = getLovelaceConfig()
+    const ll = getLovelaceConfig();
     const resolvedConfig = this._resolveDeclutteringTree(thingConfig, ll);
 
     this._thingConfig = thingConfig;

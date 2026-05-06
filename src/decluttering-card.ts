@@ -1,5 +1,5 @@
-import { LitElement, html, TemplateResult, css, CSSResult } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { LitElement, html, TemplateResult, css, CSSResult } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import {
   HomeAssistant,
   createThing,
@@ -7,7 +7,7 @@ import {
   LovelaceCard,
   LovelaceCardEditor,
   LovelaceConfig,
-} from "custom-card-helpers";
+} from 'custom-card-helpers';
 import {
   DeclutteringCardConfig,
   DeclutteringTemplateConfig,
@@ -16,55 +16,48 @@ import {
   LovelaceThing,
   LovelaceThingConfig,
   LovelaceThingType,
-} from "./types";
-import deepReplace from "./deep-replace";
-import { getLovelaceConfig } from "./utils";
-import { VERSION } from "./version";
+} from './types';
+import deepReplace from './deep-replace';
+import { getLovelaceConfig } from './utils';
+import { VERSION } from './version';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const HELPERS = (window as any).loadCardHelpers
-  ? (window as any).loadCardHelpers()
-  : undefined;
+const HELPERS = (window as any).loadCardHelpers ? (window as any).loadCardHelpers() : undefined;
 
 console.info(
   `%c DECLUTTERING-CARD \n%c   Version ${VERSION}   `,
-  "color: orange; font-weight: bold; background: black",
-  "color: white; font-weight: bold; background: dimgray",
+  'color: orange; font-weight: bold; background: black',
+  'color: white; font-weight: bold; background: dimgray',
 );
 
 async function loadCardEditorPicker(): Promise<void> {
   // Ensure hui-card-element-editor and hui-card-picker are loaded.
   // They happen to be used by the vertical-stack card editor but there must be a better way?
-  let cls = customElements.get("hui-vertical-stack-card");
+  let cls = customElements.get('hui-vertical-stack-card');
   if (!cls) {
-    (await HELPERS).createCardElement({ type: "vertical-stack", cards: [] });
-    await customElements.whenDefined("hui-vertical-stack-card");
-    cls = customElements.get("hui-vertical-stack-card");
+    (await HELPERS).createCardElement({ type: 'vertical-stack', cards: [] });
+    await customElements.whenDefined('hui-vertical-stack-card');
+    cls = customElements.get('hui-vertical-stack-card');
   }
   if (cls) cls = cls.prototype.constructor;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (cls && (cls as any).getConfigElement)
-    await (cls as any).getConfigElement();
+  if (cls && (cls as any).getConfigElement) await (cls as any).getConfigElement();
 }
 
 async function loadRowEditor(): Promise<void> {
   // Ensure hui-row-element-editor are loaded.
   // They happen to be used by the vertical-stack card editor but there must be a better way?
-  let cls = customElements.get("hui-entities-card");
+  let cls = customElements.get('hui-entities-card');
   if (!cls) {
-    (await HELPERS).createCardElement({ type: "entities", entities: [] });
-    await customElements.whenDefined("hui-entities-card");
-    cls = customElements.get("hui-entities-card");
+    (await HELPERS).createCardElement({ type: 'entities', entities: [] });
+    await customElements.whenDefined('hui-entities-card');
+    cls = customElements.get('hui-entities-card');
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (cls && (cls as any).getConfigElement)
-    await (cls as any).getConfigElement();
+  if (cls && (cls as any).getConfigElement) await (cls as any).getConfigElement();
 }
 
-function getTemplateConfig(
-  ll: LovelaceConfig,
-  template: string,
-): TemplateConfig | null {
+function getTemplateConfig(ll: LovelaceConfig, template: string): TemplateConfig | null {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const templates = (ll as any).decluttering_templates;
   const config = templates?.[template] as TemplateConfig;
@@ -74,10 +67,7 @@ function getTemplateConfig(
     for (const view of ll.views) {
       if (view.cards) {
         for (const card of view.cards) {
-          if (
-            card.type === "custom:decluttering-template" &&
-            card.template === template
-          ) {
+          if (card.type === 'custom:decluttering-template' && card.template === template) {
             return card as DeclutteringTemplateConfig;
           }
         }
@@ -88,10 +78,7 @@ function getTemplateConfig(
         for (const section of sections) {
           if (section.cards) {
             for (const card of section.cards) {
-              if (
-                card.type === "custom:decluttering-template" &&
-                card.template === template
-              ) {
+              if (card.type === 'custom:decluttering-template' && card.template === template) {
                 return card as DeclutteringTemplateConfig;
               }
             }
@@ -114,7 +101,7 @@ function getTemplates(ll: LovelaceConfig): Record<string, TemplateConfig> {
     for (const view of ll.views) {
       if (view.cards) {
         for (const card of view.cards) {
-          if (card.type === "custom:decluttering-template") {
+          if (card.type === 'custom:decluttering-template') {
             templates[card.template] = card as DeclutteringTemplateConfig;
           }
         }
@@ -125,7 +112,7 @@ function getTemplates(ll: LovelaceConfig): Record<string, TemplateConfig> {
         for (const section of sections) {
           if (section.cards) {
             for (const card of section.cards) {
-              if (card.type === "custom:decluttering-template") {
+              if (card.type === 'custom:decluttering-template') {
                 templates[card.template] = card as DeclutteringTemplateConfig;
               }
             }
@@ -137,15 +124,9 @@ function getTemplates(ll: LovelaceConfig): Record<string, TemplateConfig> {
   return templates;
 }
 
-function getThingType(
-  templateConfig: TemplateConfig,
-): LovelaceThingType | undefined {
-  const thingTypes = Object.keys(templateConfig).filter((key) =>
-    ["card", "row", "element"].includes(key),
-  );
-  return thingTypes.length === 1
-    ? (thingTypes[0] as LovelaceThingType)
-    : undefined;
+function getThingType(templateConfig: TemplateConfig): LovelaceThingType | undefined {
+  const thingTypes = Object.keys(templateConfig).filter(key => ['card', 'row', 'element'].includes(key));
+  return thingTypes.length === 1 ? (thingTypes[0] as LovelaceThingType) : undefined;
 }
 
 abstract class DeclutteringElement extends LitElement {
@@ -183,43 +164,37 @@ abstract class DeclutteringElement extends LitElement {
   }
 
   protected _displayHidden(): void {
-    if (this._thing?.style.display === "none") {
-      this.classList.add("child-card-hidden");
-    } else if (this.classList.contains("child-card-hidden")) {
-      this.classList.remove("child-card-hidden");
+    if (this._thing?.style.display === 'none') {
+      this.classList.add('child-card-hidden');
+    } else if (this.classList.contains('child-card-hidden')) {
+      this.classList.remove('child-card-hidden');
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _resolveDeclutteringTree(config: any, ll: any, depth = 0): any {
     if (depth > 10) {
-      console.warn(
-        "[decluttering-card] Stack overflow protection (Max depth = 10). Templates cycle maybe?",
-        config,
-      );
+      console.warn('[decluttering-card] Stack overflow protection (Max depth = 10). Templates cycle maybe?', config);
       return config;
     }
-
-    if (config && typeof config === "object") {
+    
+    if (config && typeof config === 'object') {
       if (this._seen.has(config)) {
         return config;
       }
       this._seen.add(config);
     }
-
+    
     if (Array.isArray(config)) {
       if (this._seen.has(config)) return config;
       this._seen.add(config);
-      return config.map((item) =>
-        this._resolveDeclutteringTree(item, ll, depth + 1),
-      );
+      return config.map(item => this._resolveDeclutteringTree(item, ll, depth + 1));
     }
 
-    if (!config || typeof config !== "object") {
+    if (!config || typeof config !== 'object') {
       return config;
     }
 
-    if (config.type === "custom:decluttering-card") {
+    if (config.type === 'custom:decluttering-card') {
       if (!ll) return config;
 
       const templateConfig = getTemplateConfig(ll, config.template);
@@ -229,18 +204,19 @@ abstract class DeclutteringElement extends LitElement {
       if (!thingType) return config;
 
       const thingContent =
-        templateConfig.card ?? templateConfig.element ?? templateConfig.row;
+        templateConfig.card ??
+        templateConfig.element ??
+        templateConfig.row;
 
       const thingConfig = deepReplace(
         config.variables,
         templateConfig,
-        thingContent,
+        thingContent
       );
 
       return this._resolveDeclutteringTree(thingConfig, ll, depth + 1);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = {};
 
     for (const key of Object.keys(config)) {
@@ -257,15 +233,12 @@ abstract class DeclutteringElement extends LitElement {
   ): void {
     const thingType = getThingType(templateConfig);
     if (!thingType) {
-      throw new Error(
-        "You must define one card, element, or row in the template",
-      );
+      throw new Error('You must define one card, element, or row in the template');
     }
-    const thingContent =
-      templateConfig.card ?? templateConfig.element ?? templateConfig.row;
+    const thingContent = templateConfig.card ?? templateConfig.element ?? templateConfig.row;
     const thingConfig = deepReplace(variables, templateConfig, thingContent);
 
-    let styles = "";
+    let styles = '';
     if (templateConfig.style) {
       styles += deepReplace(variables, templateConfig, templateConfig.style);
     }
@@ -275,40 +248,27 @@ abstract class DeclutteringElement extends LitElement {
     this._style = styles;
 
     this._seen = new WeakSet<object>();
-    const ll = getLovelaceConfig();
+    const ll = getLovelaceConfig()
     const resolvedConfig = this._resolveDeclutteringTree(thingConfig, ll);
 
     this._thingConfig = thingConfig;
     this._thingType = thingType;
 
-    DeclutteringElement._createThing(
-      resolvedConfig,
-      thingType,
-      (thing: LovelaceThing) => {
-        if (this._thingConfig === thingConfig) {
-          this._setThing(
-            thing,
-            thingType === "element" ? thingConfig.style : undefined,
-          );
-        }
-      },
-    );
+    DeclutteringElement._createThing(resolvedConfig, thingType, (thing: LovelaceThing) => {
+      if (this._thingConfig === thingConfig) {
+        this._setThing(thing, thingType === 'element' ? thingConfig.style : undefined);
+      }
+    });
   }
 
-  private _setThing(
-    thing: LovelaceThing,
-    style?: Record<string, string>,
-  ): void {
+  private _setThing(thing: LovelaceThing, style?: Record<string, string>): void {
     this._savedStyles?.forEach((v, k) => this.style.setProperty(k, v[0], v[1]));
     this._savedStyles = undefined;
 
     if (style) {
       this._savedStyles = new Map();
-      Object.keys(style).forEach((prop) => {
-        this._savedStyles?.set(prop, [
-          this.style.getPropertyValue(prop),
-          this.style.getPropertyPriority(prop),
-        ]);
+      Object.keys(style).forEach(prop => {
+        this._savedStyles?.set(prop, [this.style.getPropertyValue(prop), this.style.getPropertyPriority(prop)]);
         this.style.setProperty(prop, style[prop]);
       });
     }
@@ -324,7 +284,7 @@ abstract class DeclutteringElement extends LitElement {
   protected render(): TemplateResult | void {
     if (!this._hass || !this._thing) return html``;
 
-    this.classList.add("decluttering-container");
+    this.classList.add('decluttering-container');
 
     return html`
       ${this._style
@@ -333,7 +293,7 @@ abstract class DeclutteringElement extends LitElement {
               ${this._style}
             </style>
           `
-        : ""}
+        : ''}
       ${this._thing}
     `;
   }
@@ -345,44 +305,37 @@ abstract class DeclutteringElement extends LitElement {
   ): Promise<void> {
     let thing: LovelaceThing;
     if (HELPERS) {
-      if (thingType === "card") {
-        if (thingConfig.type === "divider")
-          thing = (await HELPERS).createRowElement(thingConfig);
+      if (thingType === 'card') {
+        if (thingConfig.type === 'divider') thing = (await HELPERS).createRowElement(thingConfig);
         else thing = (await HELPERS).createCardElement(thingConfig);
-      } else if (thingType === "row") {
+      } else if (thingType === 'row') {
         thing = (await HELPERS).createRowElement(thingConfig);
-      } else if (thingType === "element") {
+      } else if (thingType === 'element') {
         thing = (await HELPERS).createHuiElement(thingConfig);
       } else {
         throw new Error(`Unsupported thing type '${thingType}'`);
       }
     } else {
-      thing = createThing(thingConfig, thingType === "row");
+      thing = createThing(thingConfig, thingType === 'row');
     }
     thing.addEventListener(
-      "ll-rebuild",
-      (ev) => {
+      'll-rebuild',
+      ev => {
         ev.stopPropagation();
-        DeclutteringElement._createThing(
-          thingConfig,
-          thingType,
-          (newThing: LovelaceThing) => {
-            thing.replaceWith(newThing);
-            handler(newThing);
-          },
-        );
+        DeclutteringElement._createThing(thingConfig, thingType, (newThing: LovelaceThing) => {
+          thing.replaceWith(newThing);
+          handler(newThing);
+        });
       },
       { once: true },
     );
-    thing.id = "declutter-child";
+    thing.id = 'declutter-child';
     handler(thing);
   }
 
   // for LovelaceCard
   public getCardSize(): Promise<number> | number {
-    return this._thing && this._thingType === "card"
-      ? (this._thing as LovelaceCard).getCardSize()
-      : 1;
+    return this._thing && this._thingType === 'card' ? (this._thing as LovelaceCard).getCardSize() : 1;
   }
 }
 
@@ -390,34 +343,33 @@ abstract class DeclutteringElement extends LitElement {
 (window as any).customCards = (window as any).customCards || [];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).customCards.push({
-  type: "decluttering-card",
-  name: "Decluttering card",
+  type: 'decluttering-card',
+  name: 'Decluttering card',
   preview: false,
-  description:
-    "Reuse multiple times the same card configuration with variables to declutter your config.",
+  description: 'Reuse multiple times the same card configuration with variables to declutter your config.',
 });
 
-@customElement("decluttering-card")
+@customElement('decluttering-card')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class DeclutteringCard extends DeclutteringElement {
   static getConfigElement(): HTMLElement {
-    return document.createElement("decluttering-card-editor");
+    return document.createElement('decluttering-card-editor');
   }
 
   static getStubConfig(): DeclutteringCardConfig {
     return {
-      type: "custom:decluttering-card",
-      template: "follow_the_sun",
+      type: 'custom:decluttering-card',
+      template: 'follow_the_sun',
     };
   }
 
   public setConfig(config: DeclutteringCardConfig): void {
     if (!config.template) {
-      throw new Error("Missing template object in your config");
+      throw new Error('Missing template object in your config');
     }
     const ll = getLovelaceConfig();
     if (!ll) {
-      throw new Error("Could not retrieve the lovelace configuration.");
+      throw new Error('Could not retrieve the lovelace configuration.');
     }
     const templateConfig = getTemplateConfig(ll, config.template);
     if (!templateConfig) {
@@ -429,7 +381,7 @@ class DeclutteringCard extends DeclutteringElement {
   }
 }
 
-@customElement("decluttering-card-editor")
+@customElement('decluttering-card-editor')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class DeclutteringCardEditor extends LitElement implements LovelaceCardEditor {
   @state() private _lovelace?: LovelaceConfig;
@@ -464,11 +416,11 @@ class DeclutteringCardEditor extends LitElement implements LovelaceCardEditor {
     if (!this._schema) {
       this._schema = [
         {
-          name: "template",
-          label: "Template to use",
+          name: 'template',
+          label: 'Template to use',
           selector: {
             select: {
-              mode: "dropdown",
+              mode: 'dropdown',
               sort: true,
               custom_value: true,
               options: Object.keys(this._templates),
@@ -476,9 +428,9 @@ class DeclutteringCardEditor extends LitElement implements LovelaceCardEditor {
           },
         },
         {
-          name: "variables",
-          label: "Variables",
-          helper: "Example: - variable_name: value",
+          name: 'variables',
+          label: 'Variables',
+          helper: 'Example: - variable_name: value',
           selector: { object: {} },
         },
       ];
@@ -486,14 +438,10 @@ class DeclutteringCardEditor extends LitElement implements LovelaceCardEditor {
 
     const error: Record<string, string | string[]> = {};
     if (!this._templates[this._config.template]) {
-      error.template = "No template exists with this name";
+      error.template = 'No template exists with this name';
     }
-    if (
-      this._config.variables !== undefined &&
-      !Array.isArray(this._config.variables)
-    ) {
-      error.variables =
-        "The list of variables must be an array of key and value pairs";
+    if (this._config.variables !== undefined && !Array.isArray(this._config.variables)) {
+      error.variables = 'The list of variables must be an array of key and value pairs';
     }
 
     return html`
@@ -503,14 +451,14 @@ class DeclutteringCardEditor extends LitElement implements LovelaceCardEditor {
         .schema=${this._schema}
         .error=${error}
         .computeLabel=${(s): string => s.label ?? s.name}
-        .computeHelper=${(s): string => s.helper ?? ""}
+        .computeHelper=${(s): string => s.helper ?? ''}
         @value-changed=${this._valueChanged}
       ></ha-form>
     `;
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    fireEvent(this, "config-changed", { config: ev.detail.value });
+    fireEvent(this, 'config-changed', { config: ev.detail.value });
   }
 }
 
@@ -518,14 +466,13 @@ class DeclutteringCardEditor extends LitElement implements LovelaceCardEditor {
 (window as any).customCards = (window as any).customCards || [];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).customCards.push({
-  type: "decluttering-template",
-  name: "Decluttering template",
+  type: 'decluttering-template',
+  name: 'Decluttering template',
   preview: false,
-  description:
-    "Define a reusable template for decluttering cards to instantiate.",
+  description: 'Define a reusable template for decluttering cards to instantiate.',
 });
 
-@customElement("decluttering-template")
+@customElement('decluttering-template')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class DeclutteringTemplate extends DeclutteringElement {
   @property({ type: Boolean, reflect: true }) preview = false;
@@ -533,16 +480,16 @@ class DeclutteringTemplate extends DeclutteringElement {
   @state() private _template?: string;
 
   static getConfigElement(): HTMLElement {
-    return document.createElement("decluttering-template-editor");
+    return document.createElement('decluttering-template-editor');
   }
 
   static getStubConfig(): DeclutteringTemplateConfig {
     return {
-      type: "custom:decluttering-template",
-      template: "follow_the_sun",
+      type: 'custom:decluttering-template',
+      template: 'follow_the_sun',
       card: {
-        type: "entity",
-        entity: "sun.sun",
+        type: 'entity',
+        entity: 'sun.sun',
       },
     };
   }
@@ -563,7 +510,7 @@ class DeclutteringTemplate extends DeclutteringElement {
 
   public setConfig(config: DeclutteringTemplateConfig): void {
     if (!config.template) {
-      throw new Error("Missing template property");
+      throw new Error('Missing template property');
     }
     this._template = config.template;
     this._setTemplateConfig(config, undefined, config.style);
@@ -581,10 +528,10 @@ class DeclutteringTemplate extends DeclutteringElement {
   }
 
   private setHidden(hidden: boolean): void {
-    if (this.hasAttribute("hidden") !== hidden) {
-      this.toggleAttribute("hidden", hidden);
+    if (this.hasAttribute('hidden') !== hidden) {
+      this.toggleAttribute('hidden', hidden);
       this.dispatchEvent(
-        new Event("card-visibility-changed", {
+        new Event('card-visibility-changed', {
           bubbles: true,
           composed: true,
         }),
@@ -593,14 +540,11 @@ class DeclutteringTemplate extends DeclutteringElement {
   }
 }
 
-@customElement("decluttering-template-editor")
+@customElement('decluttering-template-editor')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class DeclutteringTemplateEditor
-  extends LitElement
-  implements LovelaceCardEditor
-{
+class DeclutteringTemplateEditor extends LitElement implements LovelaceCardEditor {
   @state() private _config?: DeclutteringTemplateConfig;
-  @state() private _selectedTab = "settings";
+  @state() private _selectedTab = 'settings';
 
   @property() public lovelace?: LovelaceConfig;
   @property() public hass?: HomeAssistant;
@@ -609,28 +553,28 @@ class DeclutteringTemplateEditor
 
   private static schema = [
     {
-      name: "template",
-      label: "Template to define",
+      name: 'template',
+      label: 'Template to define',
       selector: { text: {} },
     },
     {
-      name: "thingType",
-      label: "Type of thing to template",
+      name: 'thingType',
+      label: 'Type of thing to template',
       selector: {
         select: {
-          mode: "dropdown",
+          mode: 'dropdown',
           options: [
-            { value: "card", label: "Card" },
-            { value: "row", label: "Row" },
-            { value: "element", label: "Element" },
+            { value: 'card', label: 'Card' },
+            { value: 'row', label: 'Row' },
+            { value: 'element', label: 'Element' },
           ],
         },
       },
     },
     {
-      name: "default",
-      label: "Variables",
-      helper: "Example: - variable_name: default_value",
+      name: 'default',
+      label: 'Variables',
+      helper: 'Example: - variable_name: default_value',
       selector: { object: {} },
     },
   ];
@@ -670,17 +614,13 @@ class DeclutteringTemplateEditor
     if (!this.hass || !this._config) return html``;
 
     const error: Record<string, string | string[]> = {};
-    if (
-      this._config.default !== undefined &&
-      !Array.isArray(this._config.default)
-    ) {
-      error.default =
-        "The list of variables must be an array of key and value pairs";
+    if (this._config.default !== undefined && !Array.isArray(this._config.default)) {
+      error.default = 'The list of variables must be an array of key and value pairs';
     }
 
     const data = {
       template: this._config.template,
-      thingType: getThingType(this._config) ?? "card",
+      thingType: getThingType(this._config) ?? 'card',
       default: this._config.default,
     };
 
@@ -694,17 +634,19 @@ class DeclutteringTemplateEditor
           @iron-activate=${this._activateTab}
         >
           <paper-tab name="settings">Settings</paper-tab>
-          ${data.thingType === "card"
+          ${data.thingType === 'card'
             ? html`
                 <paper-tab name="card">Card</paper-tab>
                 <paper-tab name="change_card">Change Card Type</paper-tab>
               `
-            : data.thingType === "row"
-              ? html` <paper-tab name="row">Row</paper-tab> `
-              : html``}
+            : data.thingType === 'row'
+            ? html`
+                <paper-tab name="row">Row</paper-tab>
+              `
+            : html``}
         </paper-tabs>
       </div>
-      ${this._selectedTab === "settings"
+      ${this._selectedTab === 'settings'
         ? html`
             <ha-form
               .hass=${this.hass}
@@ -712,29 +654,29 @@ class DeclutteringTemplateEditor
               .schema=${DeclutteringTemplateEditor.schema}
               .error=${error}
               .computeLabel=${(s): string => s.label ?? s.name}
-              .computeHelper=${(s): string => s.helper ?? ""}
+              .computeHelper=${(s): string => s.helper ?? ''}
               @value-changed=${this._valueChanged}
             ></ha-form>
           `
-        : this._selectedTab === "card"
-          ? html`
-              <hui-card-element-editor
-                .hass=${this.hass}
-                .lovelace=${this.lovelace}
-                .value=${this._config.card}
-                @config-changed=${this._cardChanged}
-              ></hui-card-element-editor>
-            `
-          : this._selectedTab === "change_card"
-            ? html`
-                <hui-card-picker
-                  .hass=${this.hass}
-                  .lovelace=${this.lovelace}
-                  @config-changed=${this._cardPicked}
-                ></hui-card-picker>
-              `
-            : this._selectedTab === "row"
-              ? html`
+        : this._selectedTab === 'card'
+        ? html`
+            <hui-card-element-editor
+              .hass=${this.hass}
+              .lovelace=${this.lovelace}
+              .value=${this._config.card}
+              @config-changed=${this._cardChanged}
+            ></hui-card-element-editor>
+          `
+        : this._selectedTab === 'change_card'
+        ? html`
+            <hui-card-picker
+              .hass=${this.hass}
+              .lovelace=${this.lovelace}
+              @config-changed=${this._cardPicked}
+            ></hui-card-picker>
+          `
+        : this._selectedTab === 'row'
+        ? html`
             <hui-row-element-editor
               .hass=${this.hass}
               .lovelace=${this.lovelace}
@@ -742,7 +684,7 @@ class DeclutteringTemplateEditor
               @config-changed=${this._rowChanged}
             ></hui-card-element-editor>
           `
-              : html``}
+        : html``}
     `;
   }
 
@@ -753,40 +695,21 @@ class DeclutteringTemplateEditor
   private _valueChanged(ev: CustomEvent): void {
     if (!this._config) return;
     const data = ev.detail.value;
-    const config = {
-      ...this._config,
-      template: data.template,
-      default: data.default,
-    };
-    DeclutteringTemplateEditor.stubMember(
-      data.thingType === "card",
-      config,
-      "card",
-      {
-        type: "entity",
-        entity: "sun.sun",
+    const config = { ...this._config, template: data.template, default: data.default };
+    DeclutteringTemplateEditor.stubMember(data.thingType === 'card', config, 'card', {
+      type: 'entity',
+      entity: 'sun.sun',
+    });
+    DeclutteringTemplateEditor.stubMember(data.thingType === 'row', config, 'row', {
+      entity: 'sun.sun',
+    });
+    DeclutteringTemplateEditor.stubMember(data.thingType === 'element', config, 'element', {
+      type: 'icon',
+      icon: 'mdi:weather-sunny',
+      style: {
+        color: 'yellow',
       },
-    );
-    DeclutteringTemplateEditor.stubMember(
-      data.thingType === "row",
-      config,
-      "row",
-      {
-        entity: "sun.sun",
-      },
-    );
-    DeclutteringTemplateEditor.stubMember(
-      data.thingType === "element",
-      config,
-      "element",
-      {
-        type: "icon",
-        icon: "mdi:weather-sunny",
-        style: {
-          color: "yellow",
-        },
-      },
-    );
+    });
     this._fireConfigChanged(config);
   }
 
@@ -799,7 +722,7 @@ class DeclutteringTemplateEditor
   }
 
   private _cardPicked(ev: CustomEvent): void {
-    this._selectedTab = "card";
+    this._selectedTab = 'card';
     this._cardChanged(ev);
   }
 
@@ -812,16 +735,11 @@ class DeclutteringTemplateEditor
   }
 
   private _fireConfigChanged(config: DeclutteringTemplateConfig): void {
-    fireEvent(this, "config-changed", { config });
+    fireEvent(this, 'config-changed', { config });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static stubMember(
-    include: boolean,
-    dict: any,
-    name: string,
-    stub: any,
-  ): void {
+  private static stubMember(include: boolean, dict: any, name: string, stub: any): void {
     if (include) {
       if (!(name in dict)) dict[name] = stub;
     } else {

@@ -178,17 +178,17 @@ abstract class DeclutteringElement extends LitElement {
       return config;
     }
 
+    if (Array.isArray(config)) {
+      if (this._seen.has(config)) return config;
+      this._seen.add(config);
+      return config.map(item => this._resolveDeclutteringTree(item, ll, depth + 1));
+    }
+
     if (config && typeof config === 'object') {
       if (this._seen.has(config)) {
         return config;
       }
       this._seen.add(config);
-    }
-
-    if (Array.isArray(config)) {
-      if (this._seen.has(config)) return config;
-      this._seen.add(config);
-      return config.map(item => this._resolveDeclutteringTree(item, ll, depth + 1));
     }
 
     if (!config || typeof config !== 'object') {

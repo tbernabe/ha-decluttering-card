@@ -138,6 +138,7 @@ abstract class DeclutteringElement extends LitElement {
   private _ro?: ResizeObserver;
   private _savedStyles?: Map<string, [string, string]>;
   private _seen = new WeakSet<object>();
+  private _resolvedGridOptions?: Record<string, unknown>;
   @state() private _style?: string;
 
   set hass(hass: HomeAssistant) {
@@ -221,6 +222,7 @@ abstract class DeclutteringElement extends LitElement {
     return result;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected _setTemplateConfig(
     templateConfig: TemplateConfig,
     variables: VariablesConfig[] | undefined,
@@ -248,10 +250,12 @@ abstract class DeclutteringElement extends LitElement {
 
     this._thingConfig = thingConfig;
     this._thingType = thingType;
+    this._resolvedGridOptions = (thingConfig as any)?.grid_options;
 
     DeclutteringElement._createThing(resolvedConfig, thingType, (thing: LovelaceThing) => {
       if (this._thingConfig === thingConfig) {
         this._setThing(thing, thingType === 'element' ? thingConfig.style : undefined);
+        this.dispatchEvent(new CustomEvent('card-updated', { bubbles: true, composed: true }));
       }
     });
   }
@@ -328,9 +332,16 @@ abstract class DeclutteringElement extends LitElement {
     handler(thing);
   }
 
-  // for LovelaceCard
   public getCardSize(): Promise<number> | number {
     return this._thing && this._thingType === 'card' ? (this._thing as LovelaceCard).getCardSize() : 1;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public getGridOptions() {
+    if (this._thing && typeof (this._thing as any).getGridOptions === 'function') {
+      return (this._thing as any).getGridOptions();
+    }
+    return this._resolvedGridOptions ?? {};
   }
 }
 

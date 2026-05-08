@@ -153,7 +153,7 @@ abstract class DeclutteringElement extends LitElement {
         display: none;
       }
       :host(.decluttering-container) {
-        display: block;
+        display: contents;
       }
     `;
   }

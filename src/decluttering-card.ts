@@ -222,7 +222,6 @@ abstract class DeclutteringElement extends LitElement {
     return result;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected _setTemplateConfig(
     templateConfig: TemplateConfig,
     variables: VariablesConfig[] | undefined,
@@ -250,6 +249,7 @@ abstract class DeclutteringElement extends LitElement {
 
     this._thingConfig = thingConfig;
     this._thingType = thingType;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this._resolvedGridOptions = (thingConfig as any)?.grid_options;
 
     DeclutteringElement._createThing(resolvedConfig, thingType, (thing: LovelaceThing) => {
@@ -336,9 +336,10 @@ abstract class DeclutteringElement extends LitElement {
     return this._thing && this._thingType === 'card' ? (this._thing as LovelaceCard).getCardSize() : 1;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public getGridOptions() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (this._thing && typeof (this._thing as any).getGridOptions === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (this._thing as any).getGridOptions();
     }
     return this._resolvedGridOptions ?? {};

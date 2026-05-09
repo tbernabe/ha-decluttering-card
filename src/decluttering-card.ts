@@ -263,7 +263,6 @@ abstract class DeclutteringElement extends LitElement {
       if (this._thingConfig === thingConfig) {
         this._setThing(thing, thingType === 'element' ? thingConfig.style : undefined);
         requestAnimationFrame(() => this._applyGridOptions());
-        this.dispatchEvent(new CustomEvent('card-updated', { bubbles: true, composed: true }));
       }
     });
   }

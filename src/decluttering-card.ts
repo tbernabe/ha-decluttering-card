@@ -255,6 +255,7 @@ abstract class DeclutteringElement extends LitElement {
     DeclutteringElement._createThing(resolvedConfig, thingType, (thing: LovelaceThing) => {
       if (this._thingConfig === thingConfig) {
         this._setThing(thing, thingType === 'element' ? thingConfig.style : undefined);
+        this._applyGridOptions();
         this.dispatchEvent(new CustomEvent('card-updated', { bubbles: true, composed: true }));
       }
     });
@@ -343,6 +344,16 @@ abstract class DeclutteringElement extends LitElement {
       return (this._thing as any).getGridOptions();
     }
     return this._resolvedGridOptions ?? {};
+  }
+
+  private _applyGridOptions(): void {
+    if (!this._resolvedGridOptions) return;
+    const wrapperDiv = this.parentElement?.parentElement as HTMLElement | undefined;
+    if (!wrapperDiv) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { columns, rows } = this._resolvedGridOptions as any;
+    if (columns !== undefined) wrapperDiv.style.setProperty('--column-size', String(columns));
+    if (rows !== undefined) wrapperDiv.style.setProperty('--row-size', String(rows));
   }
 }
 

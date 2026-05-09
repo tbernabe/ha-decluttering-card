@@ -149,10 +149,10 @@ abstract class DeclutteringElement extends LitElement {
     }
   }
 
-disconnectedCallback(): void {
-  super.disconnectedCallback();
-  this._gridObserver?.disconnect();
-}
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this._gridObserver?.disconnect();
+  }
 
   set hass(hass: HomeAssistant) {
     if (!hass) return;
@@ -241,6 +241,7 @@ disconnectedCallback(): void {
     const wrapperDiv = this.parentElement?.parentElement as HTMLElement | undefined;
     if (!wrapperDiv) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { columns, rows } = this._resolvedGridOptions as any;
 
     const apply = () => {

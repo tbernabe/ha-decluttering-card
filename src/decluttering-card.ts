@@ -255,7 +255,7 @@ abstract class DeclutteringElement extends LitElement {
     DeclutteringElement._createThing(resolvedConfig, thingType, (thing: LovelaceThing) => {
       if (this._thingConfig === thingConfig) {
         this._setThing(thing, thingType === 'element' ? thingConfig.style : undefined);
-        this._applyGridOptions();
+        requestAnimationFrame(() => this._applyGridOptions());
         this.dispatchEvent(new CustomEvent('card-updated', { bubbles: true, composed: true }));
       }
     });
@@ -347,6 +347,7 @@ abstract class DeclutteringElement extends LitElement {
   }
 
   private _applyGridOptions(): void {
+    console.log('[decluttering] parentElement:', this.parentElement);
     if (!this._resolvedGridOptions) return;
     const wrapperDiv = this.parentElement?.parentElement as HTMLElement | undefined;
     if (!wrapperDiv) return;
@@ -372,6 +373,13 @@ abstract class DeclutteringElement extends LitElement {
 class DeclutteringCard extends DeclutteringElement {
   static getConfigElement(): HTMLElement {
     return document.createElement('decluttering-card-editor');
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    if (this._resolvedGridOptions) {
+      this._applyGridOptions();
+    }
   }
 
   static getStubConfig(): DeclutteringCardConfig {

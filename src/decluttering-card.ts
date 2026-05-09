@@ -141,6 +141,13 @@ abstract class DeclutteringElement extends LitElement {
   private _resolvedGridOptions?: Record<string, unknown>;
   @state() private _style?: string;
 
+  connectedCallback(): void {
+    super.connectedCallback();
+    if (this._resolvedGridOptions) {
+      this._applyGridOptions();
+    }
+  }
+
   set hass(hass: HomeAssistant) {
     if (!hass) return;
     this._hass = hass;
@@ -373,13 +380,6 @@ abstract class DeclutteringElement extends LitElement {
 class DeclutteringCard extends DeclutteringElement {
   static getConfigElement(): HTMLElement {
     return document.createElement('decluttering-card-editor');
-  }
-
-  connectedCallback(): void {
-    super.connectedCallback();
-    if (this._resolvedGridOptions) {
-      this._applyGridOptions();
-    }
   }
 
   static getStubConfig(): DeclutteringCardConfig {

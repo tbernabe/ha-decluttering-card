@@ -263,7 +263,7 @@ abstract class DeclutteringElement extends LitElement {
     this._thingConfig = thingConfig;
     this._thingType = thingType;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._resolvedGridOptions = (thingConfig as any)?.grid_options;
+    this._resolvedGridOptions = (resolvedConfig as any)?.grid_options;
 
     DeclutteringElement._createThing(resolvedConfig, thingType, (thing: LovelaceThing) => {
       if (this._thingConfig === thingConfig) {
@@ -359,7 +359,6 @@ abstract class DeclutteringElement extends LitElement {
   }
 
   private _applyGridOptions(): void {
-    console.log('[decluttering] parentElement:', this.parentElement);
     if (!this._resolvedGridOptions) return;
     const wrapperDiv = this.parentElement?.parentElement as HTMLElement | undefined;
     if (!wrapperDiv) return;

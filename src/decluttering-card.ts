@@ -235,32 +235,6 @@ abstract class DeclutteringElement extends LitElement {
     return result;
   }
 
-  private _applyGridOptions(): void {
-    console.log('[decluttering] parentElement:', this.parentElement);
-    if (!this._resolvedGridOptions) return;
-    const wrapperDiv = this.parentElement?.parentElement as HTMLElement | undefined;
-    if (!wrapperDiv) return;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { columns, rows } = this._resolvedGridOptions as any;
-
-    const apply = () => {
-      if (columns !== undefined) wrapperDiv.style.setProperty('--column-size', String(columns));
-      if (rows !== undefined) wrapperDiv.style.setProperty('--row-size', String(rows));
-    };
-
-    apply();
-
-    this._gridObserver?.disconnect();
-    this._gridObserver = new MutationObserver(() => {
-      const current = wrapperDiv.style.getPropertyValue('--column-size');
-      if (columns !== undefined && current !== String(columns)) {
-        apply();
-      }
-    });
-    this._gridObserver.observe(wrapperDiv, { attributes: true, attributeFilter: ['style'] });
-  }
-
   protected _setTemplateConfig(
     templateConfig: TemplateConfig,
     variables: VariablesConfig[] | undefined,
@@ -389,10 +363,25 @@ abstract class DeclutteringElement extends LitElement {
     if (!this._resolvedGridOptions) return;
     const wrapperDiv = this.parentElement?.parentElement as HTMLElement | undefined;
     if (!wrapperDiv) return;
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { columns, rows } = this._resolvedGridOptions as any;
-    if (columns !== undefined) wrapperDiv.style.setProperty('--column-size', String(columns));
-    if (rows !== undefined) wrapperDiv.style.setProperty('--row-size', String(rows));
+
+    const apply = () => {
+      if (columns !== undefined) wrapperDiv.style.setProperty('--column-size', String(columns));
+      if (rows !== undefined) wrapperDiv.style.setProperty('--row-size', String(rows));
+    };
+
+    apply();
+
+    this._gridObserver?.disconnect();
+    this._gridObserver = new MutationObserver(() => {
+      const current = wrapperDiv.style.getPropertyValue('--column-size');
+      if (columns !== undefined && current !== String(columns)) {
+        apply();
+      }
+    });
+    this._gridObserver.observe(wrapperDiv, { attributes: true, attributeFilter: ['style'] });
   }
 }
 

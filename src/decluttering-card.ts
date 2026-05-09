@@ -139,6 +139,7 @@ abstract class DeclutteringElement extends LitElement {
   private _savedStyles?: Map<string, [string, string]>;
   private _seen = new WeakSet<object>();
   private _resolvedGridOptions?: Record<string, unknown>;
+  private _gridObserver?: MutationObserver;
   @state() private _style?: string;
 
   connectedCallback(): void {
@@ -147,6 +148,11 @@ abstract class DeclutteringElement extends LitElement {
       this._applyGridOptions();
     }
   }
+
+disconnectedCallback(): void {
+  super.disconnectedCallback();
+  this._gridObserver?.disconnect();
+}
 
   set hass(hass: HomeAssistant) {
     if (!hass) return;
@@ -227,6 +233,31 @@ abstract class DeclutteringElement extends LitElement {
     }
 
     return result;
+  }
+
+  private _applyGridOptions(): void {
+    console.log('[decluttering] parentElement:', this.parentElement);
+    if (!this._resolvedGridOptions) return;
+    const wrapperDiv = this.parentElement?.parentElement as HTMLElement | undefined;
+    if (!wrapperDiv) return;
+
+    const { columns, rows } = this._resolvedGridOptions as any;
+
+    const apply = () => {
+      if (columns !== undefined) wrapperDiv.style.setProperty('--column-size', String(columns));
+      if (rows !== undefined) wrapperDiv.style.setProperty('--row-size', String(rows));
+    };
+
+    apply();
+
+    this._gridObserver?.disconnect();
+    this._gridObserver = new MutationObserver(() => {
+      const current = wrapperDiv.style.getPropertyValue('--column-size');
+      if (columns !== undefined && current !== String(columns)) {
+        apply();
+      }
+    });
+    this._gridObserver.observe(wrapperDiv, { attributes: true, attributeFilter: ['style'] });
   }
 
   protected _setTemplateConfig(
